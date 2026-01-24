@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-  <head>
+    <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -49,8 +49,8 @@
           "Apple Color Emoji", "Segoe UI Emoji";
         color: var(--text);
         background: radial-gradient(1200px 800px at 10% 10%, rgba(255, 255, 255, 0.06), transparent 55%),
-          radial-gradient(900px 700px at 90% 20%, var(--primary-12), transparent 60%),
-          radial-gradient(900px 700px at 55% 110%, rgba(71, 120, 255, 0.1), transparent 55%),
+          radial-gradient(900px 700px at 90% 20%, rgba(var(--rgb-primary-cta-color), 0.16), transparent 62%),
+          radial-gradient(900px 700px at 55% 110%, rgba(var(--rgb-primary-cta-color), 0.12), transparent 58%),
           linear-gradient(180deg, var(--bg-0), var(--bg-1));
         overflow-x: hidden;
       }
@@ -441,6 +441,59 @@
         opacity: 0.92;
       }
 
+      .redirect-line {
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .redirect-host {
+        color: var(--primary);
+        font-weight: 800;
+        letter-spacing: 0.2px;
+        text-shadow: 0 10px 40px rgba(var(--rgb-primary-cta-color), 0.18);
+      }
+
+      .count-badge {
+        display: inline-grid;
+        place-items: center;
+        min-width: 28px;
+        height: 24px;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: linear-gradient(
+          180deg,
+          rgba(var(--rgb-primary-cta-color), 0.98),
+          rgba(var(--rgb-primary-cta-color), 0.82)
+        );
+        color: #1a1403;
+        font-weight: 900;
+        font-size: 12px;
+        border: 1px solid rgba(var(--rgb-primary-cta-color), 0.55);
+        box-shadow: 0 16px 50px rgba(var(--rgb-primary-cta-color), 0.20);
+        animation: badgePulse 1.2s ease-in-out infinite;
+      }
+
+      @keyframes badgePulse {
+        0% {
+          transform: translateY(0);
+          box-shadow: 0 16px 50px rgba(var(--rgb-primary-cta-color), 0.18);
+        }
+        55% {
+          transform: translateY(-1px);
+          box-shadow: 0 18px 62px rgba(var(--rgb-primary-cta-color), 0.28);
+        }
+        100% {
+          transform: translateY(0);
+          box-shadow: 0 16px 50px rgba(var(--rgb-primary-cta-color), 0.18);
+        }
+      }
+
       @media (max-width: 920px) {
         .hero {
           grid-template-columns: 1fr;
@@ -449,6 +502,9 @@
 
       @media (prefers-reduced-motion: reduce) {
         .dot::after {
+          animation: none;
+        }
+        .count-badge {
           animation: none;
         }
         .btn,
@@ -560,10 +616,16 @@
                           </div>
 
             <div class="panel" aria-labelledby="countdown-title">
-             
-             
+              <!-- <h2 id="countdown-title">Countdown</h2> -->
+              <!-- <div class="redirect-line" aria-live="polite">
+                <span>Redirecting to</span>
+                <span class="redirect-host">bggex.com</span>
+                <span>in</span>
+                <span class="count-badge" id="redirectSeconds">3</span>
+                <span>s</span>
+              </div> -->
 
-              <!-- Set data-target to enable countdown -->
+              <!-- Set data-target to enable maintenance ETA countdown -->
               <div class="countdown" id="countdown" data-target="2026-01-25T03:00:00+00:00">
                 <div class="tile"><strong id="dd">--</strong><span>Days</span></div>
                 <div class="tile"><strong id="hh">--</strong><span>Hours</span></div>
@@ -689,6 +751,32 @@
 
         tick();
         setInterval(tick, 1000);
+
+        // Auto-redirect after 3 seconds (+ visible countdown)
+        const REDIRECT_URL = "https://bggex.com";
+        const REDIRECT_DELAY_MS = 3000;
+        const $redirectSeconds = document.getElementById("redirectSeconds");
+
+        if (window.location.hostname !== "bggex.com") {
+          const start = Date.now();
+          const updateRedirectCountdown = () => {
+            if (!$redirectSeconds) return;
+            const elapsed = Date.now() - start;
+            const remainingMs = Math.max(0, REDIRECT_DELAY_MS - elapsed);
+            const remainingS = Math.ceil(remainingMs / 1000);
+            $redirectSeconds.textContent = String(remainingS);
+          };
+
+          updateRedirectCountdown();
+          const redirectInterval = window.setInterval(updateRedirectCountdown, 200);
+
+        //   window.setTimeout(() => {
+        //     window.clearInterval(redirectInterval);
+        //     window.location.replace(REDIRECT_URL);
+        //   }, REDIRECT_DELAY_MS);
+        } else if ($redirectSeconds) {
+          $redirectSeconds.textContent = "0";
+        }
       })();
 </script>
 </body>
